@@ -1,0 +1,57 @@
+# 1. Register a new user and organization
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "TestPassword123!",
+    "organization_name": "Test Company",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone_number": "+1234567890"
+  }'
+
+# response = {"access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU0NzE0MTUwLCJpYXQiOjE3NTQ3MTA1NTAsImp0aSI6ImFlMGNjYjI3OGJjZjRlMzlhOGQwZTQzMGFhM2Y5Yjg3IiwidXNlcl9pZCI6IjRjNDg5ZTVmLWIzMDctNDVkMi1iYjJlLWQzNGI0NDk3MTkyNSIsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJyb2xlIjoib3duZXIiLCJvcmdhbml6YXRpb25faWQiOiJlZTIxMGMzNy02NGIxLTQyODItOWY2NC0xNWFlZTMwNzBmZDAifQ.ktBRXKMBDIpeSWcGOXj7KuF0ftKY-mxSMqBjUPpk0YM", "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1NTMxNTM1MCwiaWF0IjoxNzU0NzEwNTUwLCJqdGkiOiJhN2FmYWU4NjAyMTM0NjUyYTgxZWJjY2EzODJlMzllMSIsInVzZXJfaWQiOiI0YzQ4OWU1Zi1iMzA3LTQ1ZDItYmIyZS1kMzRiNDQ5NzE5MjUiLCJlbWFpbCI6InRlc3QxQGV4YW1wbGUuY29tIiwicm9sZSI6Im93bmVyIiwib3JnYW5pemF0aW9uX2lkIjoiZWUyMTBjMzctNjRiMS00MjgyLTlmNjQtMTVhZWUzMDcwZmQwIn0.Bpnzx31UhVMJdI8fVGVckXH8Glhen5qKmKdBAElcmX8", "user_id": "4c489e5f-b307-45d2-bb2e-d34b44971925", "organization_id": "ee210c37-64b1-4282-9f64-15aee3070fd0", "role": "owner", "email": "test1@example.com", "name": "John Doe"}%                                                                                                
+
+# Save the access token from the response
+ACCESS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU0NzE0MTUwLCJpYXQiOjE3NTQ3MTA1NTAsImp0aSI6ImFlMGNjYjI3OGJjZjRlMzlhOGQwZTQzMGFhM2Y5Yjg3IiwidXNlcl9pZCI6IjRjNDg5ZTVmLWIzMDctNDVkMi1iYjJlLWQzNGI0NDk3MTkyNSIsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJyb2xlIjoib3duZXIiLCJvcmdhbml6YXRpb25faWQiOiJlZTIxMGMzNy02NGIxLTQyODItOWY2NC0xNWFlZTMwNzBmZDAifQ.ktBRXKMBDIpeSWcGOXj7KuF0ftKY-mxSMqBjUPpk0YM"
+
+# 2. Create an agent
+curl -X POST http://localhost:8000/api/agents/ \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -d '{
+    "name": "Support Bot",
+    "description": "Customer support agent",
+    "personality_traits": "Friendly, helpful, professional",
+    "system_prompt": "You are a helpful customer support agent.",
+    "whatsapp_enabled": true,
+    "sms_enabled": true,
+    "voice_enabled": false
+  }'
+
+# response = {"id": "1f4e0a8b-d131-4060-b194-644a4252472b", "name": "Support Bot", "description": "Customer support agent", "personality_traits": "Friendly, helpful, professional", "system_prompt": "You are a helpful customer support agent.", "whatsapp_enabled": true, "whatsapp_number": "+15551f4e0a8", "sms_enabled": true, "sms_number": "+15561f4e0a8", "voice_enabled": false, "voice_number": null, "voice_id": null, "is_active": true, "total_conversations": 0, "total_messages": 0, "created_at": "2025-08-09T03:41:42.294Z", "language": "en", "welcome_message": "Hello! How can I help you today?"}%    
+
+# 3. List agents
+curl -X GET http://localhost:8000/api/agents/ \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
+# response = [{"id": "1f4e0a8b-d131-4060-b194-644a4252472b", "name": "Support Bot", "description": "Customer support agent", "is_active": true, "total_conversations": 0, "total_messages": 0, "created_at": "2025-08-09T03:41:42.294Z", "channels": ["whatsapp", "sms"]}]%    
+
+# 4. Get conversations
+curl -X GET http://localhost:8000/api/conversations/ \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
+# response = []
+
+# 5. Get usage statistics
+curl -X GET http://localhost:8000/api/billing/usage \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
+# response = {"organization_name": "Test Company", "subscription_tier": "free", "current_month_messages": 0, "message_limit": 1000, "current_month_voice_minutes": 0, "voice_limit": 100, "total_cost_this_month": 0.0}%    
+
+
+
+# Fresh Access Token Request
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "candai1996@hotmail.com", "password": "Cdkdad123!"}'

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for app in accounts agents conversations webhooks billing)",
+      "Bash(do python:*)",
+      "Bash(done)"
+    ],
+    "deny": []
+  }
+}

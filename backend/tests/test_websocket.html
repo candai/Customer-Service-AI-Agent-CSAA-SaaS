@@ -1,0 +1,234 @@
+<!-- test_websocket_stable.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test - Stable</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px 0;
+            border-bottom: 2px solid #ddd;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="sticky-header">
+        <h1>🔴 WebSocket Connection Monitor</h1>
+        <div id="status" class="status disconnected">Disconnected</div>
+        <div>Connection Time: <span id="uptime">0</span> seconds</div>
+    </div>
+    
+    <div>
+        <input type="text" id="token" placeholder="Paste JWT token here" style="width: 500px; padding: 10px;">
+        <button onclick="connectWS()">Connect</button>
+        <button onclick="disconnectWS()">Disconnect</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <h3>Event Log</h3>
+    <div id="log" class="log"></div>
+    
+    <script>
+        let socket = null;
+        let connectionStartTime = null;
+        let uptimeInterval = null;
+        
+        // Prevent page from refreshing
+        window.addEventListener('beforeunload', function(e) {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                e.preventDefault();
+                e.returnValue = 'WebSocket is connected. Are you sure you want to leave?';
+            }
+        });
+        
+        // Monitor for page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            log(`Page visibility changed: ${document.hidden ? 'hidden' : 'visible'}`);
+            if (!document.hidden && socket && socket.readyState === WebSocket.OPEN) {
+                log('Page became visible - WebSocket still connected');
+            }
+        });
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            
+            const entry = document.createElement('div');
+            entry.style.color = color;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            
+            // Keep only last 100 entries
+            while (logDiv.children.length > 100) {
+                logDiv.removeChild(logDiv.firstChild);
+            }
+            
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // Also log to console
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateUptime() {
+            if (connectionStartTime) {
+                const uptime = Math.floor((Date.now() - connectionStartTime) / 1000);
+                document.getElementById('uptime').textContent = uptime;
+            }
+        }
+        
+        function connectWS() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                alert('Please enter a token');
+                return;
+            }
+            
+            // Save token
+            localStorage.setItem('jwt_token', token);
+            
+            if (socket) {
+                socket.close();
+            }
+            
+            const url = `ws://localhost:8000/ws/conversations/?token=${token}`;
+            log(`Connecting to WebSocket...`);
+            
+            try {
+                socket = new WebSocket(url);
+                
+                socket.onopen = function(e) {
+                    log('✅ WebSocket connected!', 'success');
+                    document.getElementById('status').className = 'status connected';
+                    document.getElementById('status').textContent = 'Connected';
+                    
+                    connectionStartTime = Date.now();
+                    uptimeInterval = setInterval(updateUptime, 1000);
+                };
+                
+                socket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`📨 Received: ${data.type}`);
+                        
+                        if (data.type === 'conversation_update') {
+                            log(`🔔 Conversation update: ${data.conversation_id}`, 'success');
+                            
+                            // Show the update details
+                            if (data.data && data.data.messages) {
+                                const latestMsg = data.data.messages[0];
+                                if (latestMsg) {
+                                    log(`   Latest message from ${latestMsg.sender_type}: ${latestMsg.content.substring(0, 50)}...`);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        log(`Error parsing message: ${e}`, 'error');
+                    }
+                };
+                
+                socket.onerror = function(error) {
+                    log(`❌ WebSocket error occurred`, 'error');
+                    console.error('WebSocket error:', error);
+                };
+                
+                socket.onclose = function(event) {
+                    log(`WebSocket closed (code: ${event.code}, reason: ${event.reason || 'none'})`, 'error');
+                    document.getElementById('status').className = 'status disconnected';
+                    document.getElementById('status').textContent = 'Disconnected';
+                    
+                    if (uptimeInterval) {
+                        clearInterval(uptimeInterval);
+                        uptimeInterval = null;
+                    }
+                    
+                    // Log close codes
+                    switch(event.code) {
+                        case 1000:
+                            log('Normal closure');
+                            break;
+                        case 1001:
+                            log('Going away (page refresh or navigation)');
+                            break;
+                        case 1006:
+                            log('Abnormal closure (connection lost)');
+                            break;
+                        default:
+                            log(`Close code: ${event.code}`);
+                    }
+                    
+                    socket = null;
+                };
+                
+            } catch (e) {
+                log(`Failed to create WebSocket: ${e}`, 'error');
+            }
+        }
+        
+        function disconnectWS() {
+            if (socket) {
+                log('Manually disconnecting...');
+                socket.close(1000, 'User disconnect');
+                socket = null;
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('Log cleared');
+        }
+        
+        // Auto-load token
+        window.onload = function() {
+            const savedToken = localStorage.getItem('jwt_token');
+            if (savedToken) {
+                document.getElementById('token').value = savedToken;
+                log('Token loaded from storage');
+            }
+            
+            // Monitor network status
+            window.addEventListener('online', () => log('Network: online', 'success'));
+            window.addEventListener('offline', () => log('Network: offline', 'error'));
+            
+            // Log page load
+            log('Page loaded and ready');
+        };
+        
+        // Ping every 30 seconds to keep connection alive
+        setInterval(function() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                // Send a ping message
+                socket.send(JSON.stringify({type: 'ping'}));
+                log('Sent ping');
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

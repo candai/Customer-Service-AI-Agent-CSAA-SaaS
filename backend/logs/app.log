@@ -1,0 +1,81 @@
+INFO 2025-08-18 17:15:10,089 middleware JWTAuthMiddleware called for path: /ws/conversations/
+INFO 2025-08-18 17:15:10,090 middleware Query string: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NTYxMjc3LCJpYXQiOjE3NTU1NTQwNzcsImp0aSI6IjE2MzUxMzNhYjJlYzRhNDNhMGVlN2Y4ODAyOGNjNTE3IiwidXNlcl9pZCI6ImE0ZjJjOWE4LWJjZGEtNDIzMy05NTU5LWQyNDU3MDFkZDIzYSIsImVtYWlsIjoiY2FuZGFpMTk5NkBob3RtYWlsLmNvbSIsInJvbGUiOiJvd25lciIsIm9yZ2FuaXphdGlvbl9pZCI6IjI3ZjVhNWM0LTdlZTItNDg2OS1iMDc2LTZmNzFjZmI5N2I1MCJ9.WKIwcX7EtDVULfqfAB4NKF096jGt7JcFzOrldQIu3Sw
+INFO 2025-08-18 17:15:10,090 middleware Token found: eyJhbGciOiJIUzI1NiIs...
+INFO 2025-08-18 17:15:10,170 middleware ✅ Authenticated WebSocket user: candai1996@hotmail.com
+INFO 2025-08-18 17:15:10,170 middleware User set in scope: candai1996@hotmail.com (type: <class 'apps.accounts.models.User'>)
+INFO 2025-08-18 17:15:10,170 middleware User email: candai1996@hotmail.com, Has org: True
+INFO 2025-08-18 17:15:10,171 consumers ConversationConsumer initialized
+INFO 2025-08-18 17:15:10,204 consumers User in scope: candai1996@hotmail.com
+INFO 2025-08-18 17:15:10,204 consumers User type: <class 'apps.accounts.models.User'>
+INFO 2025-08-18 17:15:10,204 consumers User authenticated: candai1996@hotmail.com
+INFO 2025-08-18 17:15:10,205 consumers Organization ID: 27f5a5c4-7ee2-4869-b076-6f71cfb97b50
+INFO 2025-08-18 17:15:10,207 consumers WebSocket connection accepted for candai1996@hotmail.com
+INFO 2025-08-18 17:15:22,036 api Incoming call from +17653370203 to +18885696501
+INFO 2025-08-18 17:15:22,072 api Found agent Luron Customer Support for call CA6a37cc97f0d0301d0ad94f47e4867b5f
+INFO 2025-08-18 17:19:31,087 middleware JWTAuthMiddleware called for path: /ws/conversations/
+INFO 2025-08-18 17:19:31,087 middleware Query string: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NTYxMjc3LCJpYXQiOjE3NTU1NTQwNzcsImp0aSI6IjE2MzUxMzNhYjJlYzRhNDNhMGVlN2Y4ODAyOGNjNTE3IiwidXNlcl9pZCI6ImE0ZjJjOWE4LWJjZGEtNDIzMy05NTU5LWQyNDU3MDFkZDIzYSIsImVtYWlsIjoiY2FuZGFpMTk5NkBob3RtYWlsLmNvbSIsInJvbGUiOiJvd25lciIsIm9yZ2FuaXphdGlvbl9pZCI6IjI3ZjVhNWM0LTdlZTItNDg2OS1iMDc2LTZmNzFjZmI5N2I1MCJ9.WKIwcX7EtDVULfqfAB4NKF096jGt7JcFzOrldQIu3Sw
+INFO 2025-08-18 17:19:31,087 middleware Token found: eyJhbGciOiJIUzI1NiIs...
+INFO 2025-08-18 17:19:31,142 middleware ✅ Authenticated WebSocket user: candai1996@hotmail.com
+INFO 2025-08-18 17:19:31,143 middleware User set in scope: candai1996@hotmail.com (type: <class 'apps.accounts.models.User'>)
+INFO 2025-08-18 17:19:31,143 middleware User email: candai1996@hotmail.com, Has org: True
+INFO 2025-08-18 17:19:31,143 consumers ConversationConsumer initialized
+INFO 2025-08-18 17:19:31,171 consumers User in scope: candai1996@hotmail.com
+INFO 2025-08-18 17:19:31,171 consumers User type: <class 'apps.accounts.models.User'>
+INFO 2025-08-18 17:19:31,172 consumers User authenticated: candai1996@hotmail.com
+INFO 2025-08-18 17:19:31,172 consumers Organization ID: 27f5a5c4-7ee2-4869-b076-6f71cfb97b50
+INFO 2025-08-18 17:19:31,173 consumers WebSocket connection accepted for candai1996@hotmail.com
+INFO 2025-08-18 17:19:36,828 api Incoming call from +17653370203 to +18885696501
+INFO 2025-08-18 17:19:36,876 api Found agent Luron Customer Support for call CA124fe8364edc8cc8b057bf10445d312a
+INFO 2025-08-18 17:19:37,382 elevenlabs_service Audio file saved to https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171937_8402d3c1.mp3
+INFO 2025-08-18 17:19:37,382 elevenlabs_service ElevenLabs TTS: Audio file saved: https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171937_8402d3c1.mp3
+INFO 2025-08-18 17:19:37,467 elevenlabs_service Logged Voice usage for billing
+INFO 2025-08-18 17:19:37,468 api Generated audio URL: https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171937_8402d3c1.mp3
+INFO 2025-08-18 17:19:42,337 api Speech input: Hey, how are you doing?
+INFO 2025-08-18 17:19:42,364 message_processor 📥 Processing voice message from +17653370203
+INFO 2025-08-18 17:19:43,909 elevenlabs_service Audio file saved to https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171943_54b7492e.mp3
+INFO 2025-08-18 17:19:43,909 elevenlabs_service ElevenLabs TTS: Audio file saved: https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171943_54b7492e.mp3
+INFO 2025-08-18 17:19:43,970 elevenlabs_service Logged Voice usage for billing
+INFO 2025-08-18 17:19:44,566 message_processor 🔍 Conversation details before broadcast:
+INFO 2025-08-18 17:19:44,567 message_processor    Conversation ID: 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:19:44,567 message_processor    Agent ID: 1a53cbb0-0cd9-402f-8633-5fe8cd257dbc
+INFO 2025-08-18 17:19:44,567 message_processor    Agent Org ID: 27f5a5c4-7ee2-4869-b076-6f71cfb97b50
+INFO 2025-08-18 17:19:44,567 message_processor 📢 About to broadcast update for conversation 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:19:44,567 message_processor 📡 _broadcast_conversation_update called for conversation 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:19:44,567 message_processor ✅ Channel layer obtained: <class 'channels_redis.core.RedisChannelLayer'>
+INFO 2025-08-18 17:19:44,567 message_processor 🔔 Broadcasting to group: org_27f5a5c4-7ee2-4869-b076-6f71cfb97b50
+INFO 2025-08-18 17:19:44,570 message_processor 📤 Sending full broadcast
+INFO 2025-08-18 17:19:44,576 message_processor ✅ Full broadcast sent
+INFO 2025-08-18 17:19:44,576 message_processor ✅ Broadcast completed successfully
+INFO 2025-08-18 17:19:44,578 consumers 📨 Received conversation_update event
+INFO 2025-08-18 17:19:44,578 consumers    Conversation ID: 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:19:44,579 consumers ✅ Sent minimal update to client
+INFO 2025-08-18 17:19:44,579 consumers    Processing update for conversation: 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:19:44,579 consumers    Sending to WebSocket client...
+INFO 2025-08-18 17:19:44,579 consumers ✅ Successfully sent update to client
+INFO 2025-08-18 17:19:44,635 api Searching conversations with params: query=None status=None channel=None agent_id=None customer_phone=None date_from=None date_to=None has_handoff=None min_messages=None max_messages=None sort_by='last_message_at' order='desc' limit=20 offset=0
+INFO 2025-08-18 17:19:44,672 api Searching conversations with params: query=None status=None channel=None agent_id=None customer_phone=None date_from=None date_to=None has_handoff=None min_messages=None max_messages=None sort_by='last_message_at' order='desc' limit=20 offset=0
+INFO 2025-08-18 17:19:56,173 api Speech input: Okay, tell me the president of the United States.
+INFO 2025-08-18 17:19:56,208 message_processor 📥 Processing voice message from +17653370203
+INFO 2025-08-18 17:19:57,545 elevenlabs_service Audio file saved to https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171957_4e15b67d.mp3
+INFO 2025-08-18 17:19:57,545 elevenlabs_service ElevenLabs TTS: Audio file saved: https://cfa33b46532c.ngrok-free.app/media/audio/audio_1a53cbb0-0cd9-402f-8633-5fe8cd257dbc_20250818_171957_4e15b67d.mp3
+INFO 2025-08-18 17:19:57,613 elevenlabs_service Logged Voice usage for billing
+INFO 2025-08-18 17:20:00,966 message_processor 🔍 Conversation details before broadcast:
+INFO 2025-08-18 17:20:00,966 message_processor    Conversation ID: 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:20:00,966 message_processor    Agent ID: 1a53cbb0-0cd9-402f-8633-5fe8cd257dbc
+INFO 2025-08-18 17:20:00,967 message_processor    Agent Org ID: 27f5a5c4-7ee2-4869-b076-6f71cfb97b50
+INFO 2025-08-18 17:20:00,967 message_processor 📢 About to broadcast update for conversation 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:20:00,967 message_processor 📡 _broadcast_conversation_update called for conversation 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:20:00,967 message_processor ✅ Channel layer obtained: <class 'channels_redis.core.RedisChannelLayer'>
+INFO 2025-08-18 17:20:00,967 message_processor 🔔 Broadcasting to group: org_27f5a5c4-7ee2-4869-b076-6f71cfb97b50
+INFO 2025-08-18 17:20:00,970 message_processor 📤 Sending full broadcast
+INFO 2025-08-18 17:20:00,975 message_processor ✅ Full broadcast sent
+INFO 2025-08-18 17:20:00,975 message_processor ✅ Broadcast completed successfully
+INFO 2025-08-18 17:20:00,979 consumers 📨 Received conversation_update event
+INFO 2025-08-18 17:20:00,979 consumers    Conversation ID: 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:20:00,979 consumers ✅ Sent minimal update to client
+INFO 2025-08-18 17:20:00,979 consumers    Processing update for conversation: 1a23d622-71ce-47cb-bb78-6c4968187c26
+INFO 2025-08-18 17:20:00,979 consumers    Sending to WebSocket client...
+INFO 2025-08-18 17:20:00,979 consumers ✅ Successfully sent update to client
+INFO 2025-08-18 17:20:01,074 api Searching conversations with params: query=None status=None channel=None agent_id=None customer_phone=None date_from=None date_to=None has_handoff=None min_messages=None max_messages=None sort_by='last_message_at' order='desc' limit=20 offset=0
+INFO 2025-08-18 17:20:01,124 api Searching conversations with params: query=None status=None channel=None agent_id=None customer_phone=None date_from=None date_to=None has_handoff=None min_messages=None max_messages=None sort_by='last_message_at' order='desc' limit=20 offset=0
+INFO 2025-08-18 17:23:05,507 api Searching conversations with params: query=None status=None channel=None agent_id=None customer_phone=None date_from=None date_to=None has_handoff=None min_messages=None max_messages=None sort_by='last_message_at' order='desc' limit=20 offset=0
