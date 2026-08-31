@@ -117,8 +117,3 @@ python manage.py test
 - Follow the existing app layout under `backend/apps/` when adding new domain areas.
 - Add unit tests under `backend/tests/` or the app-specific `tests` packages.
 - Keep environment secrets out of the repo (use `.env` or CI secret management).
-
-## Try asking
-- How are conversations persisted and where is the conversation model defined? (look in backend/apps/conversations)
-- Where is agent configuration and scheduling logic implemented? (look in backend/apps/agents and backend/services)
-- Which endpoints support webhooks and what event formats do they expect? (check backend/apps/webhooks and the technical_report.MD in README.progressplan.md)
