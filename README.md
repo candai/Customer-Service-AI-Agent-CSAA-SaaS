@@ -1,9 +1,9 @@
-# Luron
+# Customer Service AI Agent ( CSAA))
 
 A full-stack application implementing user accounts, conversational/agent features, analytics, billing hooks, and webhook integrations — built as a Python backend with a TypeScript/JavaScript frontend and containerized deployment support.
 
 ## What this is
-Luron is an integrated system for running conversational agents and managing related user and billing workflows. It provides account management, agent/conversation handling, analytics, billing-related endpoints, and webhook support to integrate with external services.
+Customer Service AI Agent ( CSAA)) is an integrated system for running conversational agents and managing related user and billing workflows. It provides account management, agent/conversation handling, analytics, billing-related endpoints, and webhook support to integrate with external services.
 
 ### Stack
 - **Language(s):** Python (backend), TypeScript / JavaScript / CSS / HTML (frontend)
@@ -82,8 +82,8 @@ Backend (Docker):
 
 ```bash
 # build and run backend container
-docker build -t luron-backend ./backend
-docker run -e DJANGO_SETTINGS_MODULE=... -p 8000:8000 luron-backend
+docker build -t Customer Service AI Agent ( CSAA))-backend ./backend
+docker run -e DJANGO_SETTINGS_MODULE=... -p 8000:8000 Customer Service AI Agent ( CSAA))-backend
 ```
 
 Frontend (typical):
