@@ -26,7 +26,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
@@ -35,9 +40,29 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# virutal env
+# virtual env
 venv
+env/
+ENV/
+.venv
 
 # media in backend
 backend/media*
 
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backend specific
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.log
+db.sqlite3
+dump.rdb
