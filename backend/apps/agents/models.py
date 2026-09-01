@@ -121,8 +121,17 @@ class Agent(models.Model):
         
     def __str__(self):
         return f"{self.name} ({self.organization.name})"
-    
-    
+
+    def get_enabled_channels(self):
+        enabled_channels = []
+        if self.whatsapp_enabled:
+            enabled_channels.append("WhatsApp")
+        if self.sms_enabled:
+            enabled_channels.append("SMS")
+        if self.voice_enabled:
+            enabled_channels.append("Voice")
+        return enabled_channels
+
 
 # AgentTemplate Model (Optional - for quick agent creation)
 class AgentTemplate(models.Model):
@@ -231,3 +240,21 @@ class KnowledgeDocument(models.Model):
         
     def __str__(self):
         return f"{self.title} - {self.agent.name}"
+    
+
+class ElevenLabsVoice(models.Model):
+    """Cache for ElevenLabs voices to avoid frequent API calls"""
+    voice_id = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    category = models.CharField(max_length=100, blank=True, default='')
+    description = models.TextField(blank=True, default='')
+    labels = models.JSONField(default=dict, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['name']
+        
+    def __str__(self):
+        return f"{self.name} ({self.voice_id})"

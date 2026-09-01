@@ -27,6 +27,8 @@ import {
   MessageCircle,
   Users,
   Icon,
+  ChartArea,
+  CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -38,6 +40,8 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Conversations', href: '/conversations', icon: MessageCircle },
   { name: 'Agents', href: '/agents', icon: Bot },
+  { name: 'Analytics', href: '/analytics', icon: ChartArea },
+  { name: 'Usage & Billing', href: '/usage', icon: CreditCard },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

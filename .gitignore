@@ -46,6 +46,16 @@ env/
 ENV/
 .venv
 
+#.env
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+backend/media*
+backend/db.sqlite3
+backend/dump.rdb
+
 # media in backend
 backend/media*
 

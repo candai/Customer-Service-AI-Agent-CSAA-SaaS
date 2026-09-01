@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 from ninja import Router, Schema
 from uuid import UUID
 
@@ -97,6 +97,7 @@ from ninja import Schema
 
 class TestChatRequest(Schema):
     message: str
+    conversation_history: list[dict] = []
 
 class TestChatResponse(Schema):
     agent_name: str
@@ -105,15 +106,32 @@ class TestChatResponse(Schema):
     model_used: str
     tokens_used: int
 
-class VoicePreviewRequest(Schema):
-    text: str = "Hello, I'm your AI assistant. How can I help you today?"
-
-class VoicePreviewResponse(Schema):
-    agent_name: str
+# Voice preview Schemas
+class VoiceOption(Schema):
     voice_id: str
+    name: str
+    category: str = 'premade'
+    description: str = ''
+    preview_url: str = ''
+    labels: Dict = {}
+
+class VoicePreviewRequest(Schema):
     text: str
-    audio_url: str
-    duration_seconds: float
+    voice_id: str  
+
+class UpdateVoiceRequest(Schema):
+    voice_id: str
+
+
+# class VoicePreviewRequest(Schema):
+#     text: str = "Hello, I'm your AI assistant. How can I help you today?"
+
+# class VoicePreviewResponse(Schema):
+#     agent_name: str
+#     voice_id: str
+#     text: str
+#     audio_url: str
+#     duration_seconds: float
 
 class TestCallRequest(Schema):
     phone_number: str

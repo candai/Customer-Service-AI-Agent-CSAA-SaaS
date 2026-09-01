@@ -1,7 +1,10 @@
 # apps/conversations/models.py
 from django.db import models
 import uuid
-
+from django.utils import timezone
+# auto_add_now -> timezone.now
+# django warning: conversations.Message.created_at: (fields.W161) Fixed default value provided.
+# 	HINT: It seems you set a fixed date / time / datetime value as default for this field. This may not be what you want. If you want to have the current date as default, use `django.utils.timezone.now`
 ########! CONVERSATION MODEL !#########
 class Conversation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -56,7 +59,7 @@ class Conversation(models.Model):
     )
     
     # Timestamps
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(default=timezone.now)
     ended_at = models.DateTimeField(null=True, blank=True, db_index=True)
     last_message_at = models.DateTimeField(null=True, blank=True)
     handed_off_at = models.DateTimeField(null=True, blank=True)
@@ -178,7 +181,7 @@ class Message(models.Model):
     detected_entities = models.JSONField(default=dict, blank=True)
     
     # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = models.DateTimeField(default=timezone.now(), db_index=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
     read_at = models.DateTimeField(null=True, blank=True)
     

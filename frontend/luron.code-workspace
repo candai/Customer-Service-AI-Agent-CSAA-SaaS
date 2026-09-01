@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "luron",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"deno.enablePaths": [
+			"supabase/functions"
+		],
+		"deno.lint": true,
+		"deno.unstable": true
+	}
+}

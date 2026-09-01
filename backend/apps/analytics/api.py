@@ -3,7 +3,7 @@
 import csv
 from uuid import UUID
 from django.http import HttpResponse
-from ninja import Router, Schema
+from ninja import Body, Router, Schema
 from django.db.models import Count, Avg, Sum, Q, F, ExpressionWrapper, DurationField
 from django.db.models.functions import TruncDate, TruncHour, TruncWeek, TruncMonth, ExtractHour, ExtractWeekDay
 from django.utils import timezone
@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Any
 from apps.conversations.models import Conversation, Message
 from apps.agents.models import Agent
 from apps.accounts.api import auth
-from ..conversations.schemas import AnalyticsParams, ConversationStatsResponse
+from apps.analytics.schemas import AnalyticsParams
 from django.db.models import Min, Max
 import logging
 
@@ -26,34 +26,38 @@ router = Router(tags=["Analytics"])
 
 
 @router.post("/overview", auth=auth)
-def get_analytics_overview(request, params: AnalyticsParams):
+def get_analytics_overview(request, payload: AnalyticsParams = Body(...)):
     """Get comprehensive analytics overview"""
-    
+    print("Getting analytics overview, payload:", payload)
     user = request.auth
     
     # Default date range (last 30 days)
-    if not params.date_to:
-        params.date_to = timezone.now()
-    if not params.date_from:
-        params.date_from = params.date_to - timedelta(days=30)
-    
+    if not payload.date_to:
+        payload.date_to = timezone.now()
+    if not payload.date_from:
+        payload.date_from = payload.date_to - timedelta(days=30)
+
     # Base queryset
     queryset = Conversation.objects.filter(
         agent__organization=user.organization,
-        started_at__gte=params.date_from,
-        started_at__lte=params.date_to
+        started_at__gte=payload.date_from,
+        started_at__lte=payload.date_to
     )
-    
-    if params.agent_uuid_string:
-        agent_id_uuid = UUID(params.agent_uuid_string)
+
+    if payload.agent_uuid_string:
+        agent_id_uuid = UUID(payload.agent_uuid_string)
         queryset = queryset.filter(agent_id=agent_id_uuid)
-    
-    if params.channel:
-        queryset = queryset.filter(channel=params.channel)
-    
+
+    if payload.channel:
+        queryset = queryset.filter(channel=payload.channel)
+
+    # Delta total conversations
+    delta_total_conversations_percentage = calculate_delta_total_conversations_percentage(payload, queryset, user.organization)
+
     # Summary statistics
     summary = {
         'total_conversations': queryset.count(),
+        'delta_total_conversations_percentage': delta_total_conversations_percentage,
         'total_messages': Message.objects.filter(
             conversation__in=queryset
         ).count(),
@@ -66,7 +70,7 @@ def get_analytics_overview(request, params: AnalyticsParams):
     }
     
     # Conversation trends
-    trends = get_conversation_trends(queryset, params.granularity)
+    trends = get_conversation_trends(queryset, payload.granularity)
     
     # Channel distribution
     channel_distribution = list(queryset.values('channel').annotate(
@@ -75,25 +79,28 @@ def get_analytics_overview(request, params: AnalyticsParams):
     ).order_by('-count'))
     
     # Agent performance
-    agent_performance = get_agent_performance(user.organization, params.date_from, params.date_to)
+    agent_performance = get_agent_performance(user.organization, payload.date_from, payload.date_to)
     
     # Peak hours analysis
     peak_hours = get_peak_hours(queryset)
     
     # Response times
     response_times = get_response_times(queryset)
+
+    # based on the granularity, calculate 
     
-    # Customer satisfaction (mock for now) #TODO: Replace with actual calculation
+    #TODO: Replace with actual calculation
+    # Customer satisfaction (mock for now) 
     # This should be replaced with actual logic to calculate customer satisfaction based on ratings or feedback
     customer_satisfaction = {
         'average_rating': 4.2,
         'total_ratings': 156,
         'distribution': {
-            '5': 78,
-            '4': 45,
-            '3': 20,
-            '2': 8,
-            '1': 5
+            'five_star': 78,
+            'four_star': 45,
+            'three_star': 20,
+            'two_star': 8,
+            'one_star': 5
         }
     }
     
@@ -106,6 +113,22 @@ def get_analytics_overview(request, params: AnalyticsParams):
         'response_times': response_times,
         'customer_satisfaction': customer_satisfaction,
     }
+
+def calculate_delta_total_conversations_percentage(payload, queryset, organization):
+    current_total_conversations_count = queryset.count()
+    duration = payload.date_to - payload.date_from
+    previous_period_start = payload.date_from - duration
+    previous_period_end = payload.date_to - duration
+    previous_total_conversations_count = Conversation.objects.filter(
+        agent__organization=organization,
+        started_at__gte=previous_period_start,
+        started_at__lte=previous_period_end
+    ).count()
+   
+    delta_total_conversations = current_total_conversations_count - previous_total_conversations_count
+    delta_percentage = int((delta_total_conversations / previous_total_conversations_count)) * 100 if previous_total_conversations_count else 0
+
+    return delta_percentage
 
 def get_conversation_trends(queryset, granularity='day'):
     """Get conversation trends over time"""
@@ -202,15 +225,15 @@ def get_response_times(queryset):
         'under_1_min': queryset.filter(
             first_response_time_seconds__lt=60
         ).count(),
-        '1_to_5_min': queryset.filter(
+        'one_to_five_min': queryset.filter(
             first_response_time_seconds__gte=60,
             first_response_time_seconds__lt=300
         ).count(),
-        '5_to_15_min': queryset.filter(
+        'five_to_fifteen_min': queryset.filter(
             first_response_time_seconds__gte=300,
             first_response_time_seconds__lt=900
         ).count(),
-        'over_15_min': queryset.filter(
+        'over_fifteen_min': queryset.filter(
             first_response_time_seconds__gte=900
         ).count(),
     }

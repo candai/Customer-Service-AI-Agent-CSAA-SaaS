@@ -135,7 +135,7 @@
 
 ---
 
-## Phase 5: Agent Management UI
+## ✅ Phase 5: Agent Management UI
 
 **Backend (2-3 days):**
 
@@ -178,18 +178,18 @@ The system now handles idle periods gracefully without keeping users connected i
 
 **Backend:**
 
-* Conversation search API (DONE)
-* Advanced analytics (DONE)
-* Export functionality (DONE)
+1. Conversation search API (DONE)
+2. Advanced analytics (DONE)
+3. Export functionality (DONE)
 
 **Frontend:**
 
 **Conversation Interface**
 
-* Split-view layout
-* Real-time messages (using Phase 3 WebSocket)
-* Message input
-* ~~Media support~~
+1. Split-view layout
+2. Real-time messages (using Phase 3 WebSocket)
+3. Message input
+4. ~~Media support~~
 
 **Human Agent Message Handling**
 
@@ -219,145 +219,223 @@ The flow is now:
 4. All future messages from human, AI won't respond
 5. Human can click "Return to AI" to re-enable AI responses
 
+* ✅ Human Handoff minor bug fix
+
 ---
 
-## Phase 7: Analytics & Monitoring
+### ✅Phase 6.5: POSTGRESQL transition (Local) & CELERY
 
-**Backend (3-4 days):**
+* ✅PostgreSQL integration completed (same as PROD)
+* ✅Welcome message + SPEECH (handled by ELEVENLABS)
+* ✅ELEVENLABS media files are stored locally at the moment at backend/media
+  * For Twilio to access these files, ngrok is used asd.ngrok.com/media/asdb.mp3 which directs to localhost
+  * NOTE: Will be fixed with the integration of Amazon S3 storage for media/audo files
 
-* Metrics aggregation
-* Time-series data
-* Export APIs
+---
 
-**Frontend (1.5 weeks):**
+## Phase 6.6: Test Chat agent (MID)
 
-* **Analytics Dashboard**
+* ✅Test Voice: Voice selection dropdown, preview
+* 🅿️Test Voice Call: Receive a phone call feature
+* ✅Test Chat
+* 🅿️ End chat button (when can we say the chat is done? After a few hours? Never ends from the same ? Manual end by the user?)
 
-  * Overview metrics
-  * Charts and graphs
-  * Channel distribution
-  * Agent performance
-* **Usage & Billing**
+---
 
+## Phase 7: Analytics DASHBOARD (NEED DEBUGGING)
+
+**Backend:**
+
+* ✅Metrics aggregation
+* ✅Time-series data
+* 🅿️Export APIs
+* ✅CELERY SCHEDULER installed, tasks configured:
+  * Hourly metrics (Analytics & Billing) ✅
+  * Daily Metrics (Analytics & Billing) ✅
+* ✅FAKE Data generated for a better view
+
+
+**Frontend:**
+
+* **✅Analytics Dashboard**
+
+  * Overview metrics ✅
+  * Charts and graphs ✅
+  * Channel distribution ✅
+  * Agent performance ✅
+
+---
+
+## Phase 8: Phone Number Purchase & Call Transfer
+
+Backend
+
+* Twilio API updates:
+  * search_available_numbers (Voice/SMS & Whatsapp)
+  * purchase_number
+  * configure_webhooks
+  * release_number
+  * update_webhook_urls
+
+Frontend
+
+* Phone Number Management UI
+
+  * List view of all organization's numbers
+  * Status Badges (available/assigned)
+  * Assign/Unassign buttons
+  * Release number option (with confirmation)
+  * Search and filter based on channel
+* Phone Number Purchase Modal
+
+  * AreaCodeSelector (with popular cities dropdown)
+  * NumberTypeSelector (Local, Toll-free, Mobile)
+  * CapabilitiesFilter (Voice, SMS, MMS checkboxes)
+  * SearchResults list with "Buy" button
+  * PurchaseConfirmation with monthly cost display
+* **Modified Agent Creation Flow**
+
+  * Step 2: Instead of manual input, show dropdown of available numbers
+  * Add "Buy New Number" button that opens purchase modal
+  * Validate at least one number selected
+  * Show which capabilities the number supports
+
+Phase 9: Warm Transfer & Call Management
+
+Backend:
+
+* Transfer Service Layer
+  **-** check_business_hours**(**organization**)**
+  **-** generate_call_summary**(**conversation_id**)**
+  **-** initiate_warm_transfer**(**call_sid**,** transfer_to**)**
+  **-** send_context_to_agent**(**phone_number**,** summary**)**
+  **-** create_conference_room**(**call_sid**)**
+  **-** add_participant_to_conference**(**conference_sid**,** phone_number**)**
+  **-** handle_transfer_failure**(**call_sid**)**
+* CallSession & CallTransfer Models
+* Business Hours Checker
+
+  * AvailabilityService:
+    **-** is_within_business_hours**(**organization**)**
+    **-** get_next_available_time**(**organization**)**
+    **-** get_on_call_number**(**organization**)**
+    **-** handle_after_hours**(**conversation**)**
+* TwiML Responses for Transfer APIs:
+
+  /api/calls/transfer/initiate
+
+  - Creates conference room
+  - Plays hold music to customer
+  - Calls human agent with whisper
+
+  /api/calls/transfer/connect
+
+  - Bridges calls in conference
+  - Starts recording if enabled
+
+  /api/calls/transfer/fallback
+
+  - Handles failed transfers
+  - Offers callback or voicemail
+
+- **Transfer Configuration in Settings**
+  Update Organization Settings:
+
+```javascript
+EscalationSettings:
+-Primary contact number
+-Backup contact numbers[]
+-After-hours message
+-Transfer greeting template
+-Auto-summary enabled:Boolean
+-Include transcript:Boolean
+```
+
+* Real-time Call Status Updates
+
+WebSocket events for:
+
+* call.started
+* call.transferring
+* call.transferred
+* call.completed
+* transfer.failed
+
+Call Summary Component
+
+**CallSummaryPanel**:
+Customer info
+Call duration
+AI confidence score
+Key topics discussed
+Reason **for** transfer
+
+Suggested actions
+
+Frontend:
+
+**1. Live Call Dashboard Updates**
+Add to existing conversation view:
+
+* "Transfer Call" button (only shows during active calls)
+* Transfer modal with options:
+  * Transfer to: Dropdown of escalation contacts
+  * Transfer type: Warm/Cold toggle
+  * Reason: Quick select + custom input
+  * Include summary: Checkbox
+* Transfer status indicator
+* Call duration timer
+
+## Testing Checklist
+
+**Day 1 Tests:**
+
+* [ ] Can search for numbers by area code
+* [ ] Can purchase a number
+* [ ] Number appears in available list
+* [ ] Can assign number to agent
+* [ ] Webhooks properly configured
+* [ ] Incoming calls route correctly
+
+**Day 2 Tests:**
+
+* [ ] Transfer button appears during call
+* [ ] Business hours properly checked
+* [ ] Call summary generated
+* [ ] Human agent receives context (SMS/screen)
+* [ ] Conference bridge successful
+* [ ] Fallback works if transfer fails
+
+---
+
+Phase USAGE & Billing
+
+Backend:
+
+* EXPORT APIs (whole application)
+* STRIPE INTEGRATION
+
+Frontend:
+
+* **🅿️Usage & Billing**
   * Current usage
   * Cost breakdown
   * Invoice history
 
-### Phase 7: Analytics & Monitoring - Implementation Plan
+🅿️Deltas for dashboard metrics needs to be updated in /overview api
 
-### What We're Building
+🅿️FRONTEND Reusable delta component (name: )
 
-Phase 7 focuses on providing comprehensive insights into system usage, performance metrics, and financial tracking. Since we already have the core analytics APIs from Phase 6, we'll extend them with reporting capabilities and build visualization dashboards.
 
-### Backend Components
+## Phase : S3 Bucket for Audio Files + Vector Embedding Storage?
 
-#### 1. **Report Generation Service**
-
-* **Scheduled Report Generator** : Creates PDF/HTML reports from existing analytics data
-* **Report Templates** : Customizable templates for different report types (weekly summary, monthly analysis, agent performance)
-* **Report Storage** : Save generated reports for historical access
-* **Where used** : Automated weekly emails, on-demand report downloads from dashboard
-
-#### 2. **Email Report System**
-
-* **Weekly Digest** : Automated Monday morning emails with previous week's metrics
-* **Monthly Summary** : End-of-month comprehensive reports
-* **Alert Emails** : Threshold-based alerts (high handoff rate, low response time)
-* **Where used** : Keep stakeholders informed without logging into dashboard
-
-#### 3. **Time-Series Data Storage**
-
-* **Metrics Snapshots** : Store hourly/daily aggregated metrics for trend analysis
-* **Data Retention** : Implement data aging policies (detailed for 30 days, aggregated for 1 year)
-* **Performance Optimization** : Pre-calculated metrics for common queries
-* **Where used** : Historical comparisons, trend charts, performance analysis
-
-#### 4. **Export APIs Enhancement**
-
-* **Bulk Data Export** : Export all conversations/metrics for a date range
-* **Custom Report Builder API** : Let users define metrics and get CSV/JSON
-* **Scheduled Exports** : Set up recurring exports to external systems
-* **Where used** : Integration with BI tools, compliance reporting, data backups
-
-### Frontend Components
-
-#### 1. **Analytics Dashboard** (`/analytics`)
-
-Since we have the data APIs, we'll build interactive visualizations:
-
-* **Overview Page** :
-* KPI cards with trend indicators (using existing `/analytics/overview`)
-* Real-time conversation counter
-* Today vs Yesterday comparison
-* Weekly/Monthly toggle
-* **Performance Charts** :
-* Line chart: Conversations over time (hourly/daily/weekly granularity)
-* Bar chart: Channel distribution
-* Heatmap: Peak hours (day vs hour grid)
-* Response time distribution histogram
-* **Agent Performance Tab** :
-* Leaderboard table with sortable metrics
-* Individual agent cards with performance badges
-* Comparison chart (select 2-3 agents to compare)
-* Drill-down to specific agent's conversations
-* **Customer Insights Tab** :
-* New vs returning customer ratio
-* Top customers by conversation count
-* Average conversation length trends
-* Customer satisfaction scores (when implemented)
-
-#### 2. **Usage & Billing Dashboard** (`/billing`)
-
-* **Current Usage Page** :
-* Real-time usage meters (conversations, messages, minutes)
-* Usage vs Plan limits (progress bars)
-* Daily usage chart for current billing period
-* Per-agent usage breakdown
-* **Cost Breakdown** :
-* Current month's estimated cost
-* Cost by channel (WhatsApp, SMS, Voice)
-* Cost by agent
-* Overage charges if applicable
-* Projected month-end cost
-* **Invoice History** :
-* List of past invoices with download links
-* Payment status indicators
-* Quick filters (paid, pending, overdue)
-* Invoice detail modal with line items
-* **Usage Alerts** :
-* Set threshold alerts (80% of plan limit)
-* Cost alerts (when exceeding budget)
-* Email notification preferences
-
-### Integration Points
-
-1. **Dashboard Widgets** : Mini analytics widgets for the main dashboard
-2. **Agent Detail Pages** : Embed performance metrics in individual agent views
-3. **Conversation List** : Add analytics filters based on metrics
-4. **Report Scheduler** : UI for setting up automated reports
-5. **Export Center** : Centralized place for all data exports
-
-### Technical Considerations
-
-* **Caching Strategy** : Cache computed metrics for 5-15 minutes
-* **Data Visualization Library** : Use Recharts for consistency
-* **Responsive Design** : Charts adapt to mobile screens
-* **Loading States** : Skeleton screens while data loads
-* **Error Boundaries** : Graceful handling if metrics fail
-* **Real-time Updates** : WebSocket for live metric updates
-
-### Data Flow
-
-1. **Conversations happen** → Save to database
-2. **Background job** → Calculates metrics every hour
-3. **Analytics API** → Serves pre-calculated + real-time data
-4. **Frontend** → Visualizes with charts and tables
-5. **Reports** → Generated from analytics data
-6. **Emails** → Sent on schedule with report attachments
+- Audio file write, get, delete
+- Knowledge Base processing-> vector embedding save, retrieve, delete
+- 
 
 ---
 
-## Phase 8: Advanced AI Features
+## Phase : Knowledge Base
 
 **Backend (1 week):**
 
@@ -385,7 +463,19 @@ Since we have the data APIs, we'll build interactive visualizations:
 
 ---
 
-## Phase 9: Team & Collaboration
+## Phase : Registration Page
+
+Flow:
+
+* Page 1: Fill in basic company information
+* Page 2: Upload Knowledge Base
+* Page 3: Configure Agent
+* Page 4: Test and Confirm
+* Page 5: Ready to go dashboard
+
+---
+
+## Phase : Team & Collaboration
 
 **Backend (4-5 days):**
 
@@ -402,20 +492,23 @@ Since we have the data APIs, we'll build interactive visualizations:
   * Activity feed
   * Permissions UI
 
-Phase 10:
+---
+
+## Phase :
 
 * Report generation
-* Send weekly report email
+* Send emails reporting:
+  * Weekly usage & analytics
+  * Usage warnings
 
 ---
 
-## Phase 11: Production Optimization
+## Phase  : Production Optimization
 
 **Backend (1 week):**
 
 * Query optimization
-* Caching layer
-* Background jobs (Celery)
+* Caching layer (REDIS DONE)
 * Rate limiting
 * Error handling
 
@@ -424,12 +517,30 @@ Phase 10:
 * Code splitting
 * Performance optimization
 * PWA features
-* Accessibility
-* Dark mode
 
 ---
 
-## Phase 11: Integrations
+## Phase LAST : Deployment
+
+**Backend (3-4 days):**
+
+* Deployment setup
+
+**Frontend (2 weeks):**
+
+* CI/CD pipeline
+* Production deployment
+* Monitoring setup
+
+---
+
+---
+
+
+
+# Future considerations:
+
+## Phase 1: Integrations
 
 **Backend (1.5 weeks):**
 
@@ -447,31 +558,3 @@ Phase 10:
 * API documentation
 
 ---
-
-## Phase 12: Mobile & Deployment
-
-**Backend (3-4 days):**
-
-* Mobile API optimization
-* Push notifications
-* Deployment setup
-
-**Frontend (2 weeks):**
-
-* React Native app
-* CI/CD pipeline
-* Production deployment
-* Monitoring setup
-
----
-
-## 🚀 Milestone Targets
-
-* **Week 1** : Complete Phase 3 (WebSocket backend)
-* **Week 3** : Complete Phase 4 (Frontend foundation)
-* **Week 6** : Complete Phase 5 (Agent management)
-* **Week 9** : Complete Phase 6 (Conversations) - **MVP READY**
-* **Week 11** : Complete Phase 7 (Analytics)
-* **Week 20** : Full platform complete
-
-This plan ensures we **complete the backend first** (Phase 3), then move systematically through the frontend phases while having real-time capabilities ready from the start.

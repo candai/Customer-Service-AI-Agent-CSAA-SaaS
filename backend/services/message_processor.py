@@ -1,5 +1,8 @@
 # services/message_processor.py
+import os
 from typing import Dict, Any, Optional
+
+from django.conf import settings
 from apps.agents.models import Agent
 from apps.conversations.models import Conversation, Message
 from .ai_service import AIService
@@ -9,6 +12,10 @@ import asyncio
 from channels.layers import get_channel_layer
 from django.utils import timezone
 import logging
+from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +58,10 @@ class MessageProcessor:
             conversation = await self._get_or_create_conversation(
                 agent, channel, from_number
             )
-            
+            if conversation is None:
+                logger.error(f"Failed to get or create conversation for {channel} number: {from_number}")
+                return {'success': False, 'error': 'Message procesor - process_incoming_message ERROR: Failed to get or create conversation'}
+
             # Store incoming message
             incoming_message = await self._store_message(
                 conversation=conversation,
@@ -61,6 +71,32 @@ class MessageProcessor:
                 media_url=media_url,
                 external_id=external_id
             )
+            
+            ####! Scenario 1: Conversation status is 'handed_off' ###
+            if conversation.status == 'handed_off':
+                ''' No AI processing, only message broadcast '''
+                logger.info(f"🔄 Conversation {conversation.id} is handed off, broadcasting incoming message only - NO AI PROCESSING")
+                try:
+                    logger.info(f"📢 About to broadcast update for conversation {conversation.id}")
+                    await self._broadcast_conversation_update(conversation)
+                    logger.info(f"✅ Broadcast completed successfully")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Error broadcasting conversation update: {e}")
+                    return {
+                        'success': False,
+                        'error': 'Failed to broadcast conversation update'
+                    }
+                
+                return {
+                    'success': True,
+                    'conversation_id': str(conversation.id),
+                    'message_id': str(incoming_message.id)
+                }
+
+
+            ###! Scenario 2: Conversation status is 'active': AGENT ENABLED###
+            ''' Process AI response for active conversations '''
             
             # Get conversation history
             history = await self._get_conversation_history(conversation)
@@ -94,7 +130,12 @@ class MessageProcessor:
                 external_id=send_result.get('sid') if send_result.get('success') else None,
                 delivered_at=timezone.now() if send_result.get('success') else None
             )
-            
+
+            # Delete Local Audio File
+            if send_result.get('success') is True and send_result.get('audio_url') and settings.MEDIA_PUBLIC_DOMAIN:
+                # delete audio url file
+                await self._delete_audio_file_local(send_result.get('audio_url'))
+
             # Update conversation metrics
             await self._update_conversation_metrics(conversation, incoming_message, ai_message)
             
@@ -133,7 +174,22 @@ class MessageProcessor:
                 'success': False,
                 'error': str(e)
             }
-    
+        
+    async def _delete_audio_file_local(self, audio_url: str):
+        """Delete audio file from storage"""
+        if settings.MEDIA_PUBLIC_DOMAIN in [
+            "http://localhost:8000", #local
+            "https://cfa33b46532c.ngrok-free.app" #ngrok
+        ]:
+            try:
+                await asyncio.to_thread(lambda: os.remove(audio_url))
+                logger.info(f"✅ Deleted audio file: {audio_url}")
+            except Exception as e:
+                logger.error(f"❌ Failed to delete audio file {audio_url}: {str(e)}", exc_info=True)
+        else:
+            # TODO PROD S3 file deletion
+            logger.warning(f"❌ Attempted to delete audio file {audio_url} outside of local/ngrok environment")
+
     async def _find_agent_by_number(self, channel: str, number: str) -> Optional[Agent]:
         """Find agent by phone number based on channel"""
     
@@ -180,15 +236,39 @@ class MessageProcessor:
         """Get existing or create new conversation"""
         
         # Look for active conversation
+        # 1. Look for active conversation 
         try:
+            print("Message Processor: Looking for active conversation")
             conversation = await asyncio.to_thread(
-                Conversation.objects.get,
-                agent=agent,
-                channel=channel,
-                customer_phone=customer_phone,
-                status='active'
+                lambda: Conversation.objects.select_related('agent__organization').get(
+                    agent=agent,
+                    channel=channel,
+                    customer_phone=customer_phone,
+                    status='active'
+                )
             )
+            return conversation
+        
         except Conversation.DoesNotExist:
+            print("Message Processor: No active conversation found")
+            pass
+        
+        # 2. Look for handed-off conversation
+        try:
+            print("Message Processor: Looking for handed-off conversation")
+            conversation = await asyncio.to_thread(
+                lambda: Conversation.objects.select_related('agent__organization').get(
+                    agent=agent,
+                    channel=channel,
+                    customer_phone=customer_phone,
+                    status='handed_off'
+                )
+            )
+            return conversation
+
+        # 3. If no active or handed-off conversation, create a new one
+        except Conversation.DoesNotExist:
+            print("Creating new conversation")
             # Create new conversation
             conversation = await asyncio.to_thread(
                 Conversation.objects.create,
@@ -197,12 +277,20 @@ class MessageProcessor:
                 customer_phone=customer_phone,
                 status='active'
             )
-            
-            # Send welcome message if it's a new conversation
-            if agent.welcome_message:
-                await self._send_welcome_message(agent, channel, customer_phone)
+            return conversation
         
-        return conversation
+            # # Send welcome message if it's a new conversation
+            # if agent.welcome_message:
+            #     await self._send_welcome_message(agent, channel, customer_phone)
+
+        except Exception as e:
+            logger.error(f"Message Processor: Error getting or creating conversation in message incoming: {str(e)}")
+            return None
+        
+
+        
+    
+
     
     async def _send_welcome_message(
         self,
@@ -227,6 +315,8 @@ class MessageProcessor:
                 )
         except Exception as e:
             logger.error(f"Welcome message error: {str(e)}")
+
+    
     
     async def _store_message(
         self,
@@ -568,6 +658,12 @@ class MessageProcessor:
                         response=message_text
                     )
                 )
+                # async_to_sync(self._send_response)(
+                #     channel=conversation.channel,
+                #     to_number=conversation.customer_phone,
+                #     agent=conversation.agent,
+                #     response=message_text
+                # )
                 return True
             finally:
                 loop.close()

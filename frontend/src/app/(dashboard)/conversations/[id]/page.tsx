@@ -111,6 +111,7 @@ export default function ConversationDetailPage() {
         const response = await apiClient.get<SpecificConversation>(
             `/conversations/${conversationId}`
         );
+        console.log(response.data)
         setConversation(response.data);
         } catch (error) {
         console.error('Failed to load conversation:', error);
